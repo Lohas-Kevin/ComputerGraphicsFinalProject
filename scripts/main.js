@@ -1,24 +1,70 @@
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+var camera, scene, renderer, manager;
 
-var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-var cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+init();
+animate();
 
-camera.position.z = 5;
+function init(){
+    container = document.createElement( 'div' );
+    document.body.appendChild(container);
 
-var animate = function () {
-	requestAnimationFrame( animate );
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+    camera.position.z = 25;
 
-	cube.rotation.x += 0.01;
-	cube.rotation.y += 0.01;
+    scene = new THREE.Scene();
 
+    var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
+    scene.add(ambientLight);
+
+    var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
+	camera.add( pointLight );
+    scene.add(camera);
+
+    LoadModel('models/player_spaceship.obj', 'models/player_spaceship.mtl');
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+};
+
+
+function animate() {
+    //this will fix the frame rate to 60fps, so we do not need fixed update
+    //this function could be treated as a fixed update
+    setTimeout(function(){
+        requestAnimationFrame( animate );
+    }, 1000 / 60)
+	
 	renderer.render( scene, camera );
 };
 
-animate();
+function LoadModel(ObjURL,MtlURL){
+    var mLoader = new THREE.MTLLoader();
+    var oLoader = new THREE.OBJLoader();
+    mLoader.load( MtlURL, 
+        function(materials){
+            materials.preload();
+            oLoader.setMaterials( materials );
+            oLoader.load(
+                ObjURL,
+                function(object){
+                    scene.add(object);
+                },
+                function(xhr){
+                    console.log((xhr.loaded/xhr.total * 100) + '%loaded');
+                },
+                function(error){
+                    console.log('An error happened');
+                }
+            )
+        },
+        function(xhr){
+            console.log((xhr.loaded/xhr.total * 100) + '%loaded');
+        },
+        function(error){
+            console.log('An error happened');
+        }
+    );
+};
