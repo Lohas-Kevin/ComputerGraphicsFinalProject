@@ -1,5 +1,29 @@
 
+class Spaceship {
+    constructor(object, name, type, sceneRef){
+        this.object = object;
+        this.name = name;
+        this.type = type;
+        this.sceneRef = sceneRef;
+        this.health = 100;
+        this.attack = 25;
+    }
+
+    returnName(){
+        return this.name;
+    }
+
+    damage(value) {
+        this.health -= value;
+        if(this.health <= 0){
+            this.sceneRef.remove(this.object);
+        }
+    }
+};
+
 var camera, scene, renderer, manager;
+var spaceshipList = [];
+var player = new THREE.Object3D();
 
 init();
 animate();
@@ -9,7 +33,7 @@ function init(){
     document.body.appendChild(container);
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-    camera.position.z = 25;
+    camera.position.z = 120;
 
     scene = new THREE.Scene();
 
@@ -20,7 +44,9 @@ function init(){
 	camera.add( pointLight );
     scene.add(camera);
 
-    LoadModel('models/player_spaceship.obj', 'models/player_spaceship.mtl');
+    var obj = LoadModel('models/player_spaceship.obj', 'models/player_spaceship.mtl', "Test");
+    scene.add(obj);
+    
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -37,12 +63,14 @@ function animate() {
         requestAnimationFrame( animate );
     }, 1000 / 60)
 	
-	renderer.render( scene, camera );
+    renderer.render( scene, camera );
+    
 };
 
-function LoadModel(ObjURL,MtlURL){
+function LoadModel(ObjURL,MtlURL,name){
     var mLoader = new THREE.MTLLoader();
     var oLoader = new THREE.OBJLoader();
+    var result = new THREE.Object3D();
     mLoader.load( MtlURL, 
         function(materials){
             materials.preload();
@@ -50,7 +78,7 @@ function LoadModel(ObjURL,MtlURL){
             oLoader.load(
                 ObjURL,
                 function(object){
-                    scene.add(object);
+                    result.add(object);
                 },
                 function(xhr){
                     console.log((xhr.loaded/xhr.total * 100) + '%loaded');
@@ -67,4 +95,8 @@ function LoadModel(ObjURL,MtlURL){
             console.log('An error happened');
         }
     );
+    return result;
 };
+
+
+
