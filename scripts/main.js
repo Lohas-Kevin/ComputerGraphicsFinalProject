@@ -189,7 +189,7 @@ function update(){
     }
 
     if(keyboard.pressed('space')){
-        shoot(player1.obj.position,player1.obj.rotation);
+        shoot(player.obj.position,player.obj.rotation);
     }
 
     //console.log(player.obj.rotation);
