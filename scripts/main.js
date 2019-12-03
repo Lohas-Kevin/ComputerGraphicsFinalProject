@@ -19,12 +19,24 @@ class Spaceship {
             this.sceneRef.remove(this.obj);
         }
     }
+
+    moveForward(value){
+        this.obj.translateZ(-value);
+    }
+
+    rotateAngle(value){
+        this.obj.rotateY(value);
+    }
 };
 
 var camera, scene, renderer, manager;
 var spaceshipList = [];
 var player;
+var player2;
 var visibleHeight, visibleWidth;
+var clock;
+var keyboard = new THREEx.KeyboardState();
+var bulletList = [];
 
 init();
 animate();
@@ -51,6 +63,9 @@ function init(){
     player.obj.rotateX(Math.PI / 2);
     player.obj.rotateY(Math.PI);
 
+    player2 = CreateElement("Player2", "Spaceship", 'models/enemy_ship1.obj', 'models/enemy_ship1.mtl');
+    player2.obj.rotateX(Math.PI/2);
+
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -58,6 +73,11 @@ function init(){
 
     visibleHeight = visibleHeightAtZDepth(0,camera);
     visibleWidth = visibleWidthAtZDepth(0, camera);
+
+    //player.obj.translateZ(-visibleHeight/2 + 10);
+    player2.obj.translateZ(-visibleHeight/2 + 10);
+
+    clock = new THREE.Clock();
 
 };
 
@@ -81,7 +101,7 @@ function animate() {
     //player.obj.translateX(0.1);
     //console.log(player.obj.position);
     renderer.render( scene, camera );
-    
+    update();
 };
 
 function LoadModel(ObjURL,MtlURL){
@@ -136,6 +156,93 @@ function visibleWidthAtZDepth( depth, camera ){
     var height = visibleHeightAtZDepth( depth, camera );
     return height * camera.aspect;
   };
+
+
+function update(){
+    var delta = clock.getDelta();
+    var moveDistance = 35 * delta;
+    var rotationAngle = Math.PI/2 * delta;
+
+    for(var index = 0; index < bulletList.length; index+= 1){
+        if(bulletList[index] === undefined){
+            continue;
+        }
+        if(bulletList[index].alive == false){
+            bulletList.splice(index,1);
+            continue;
+        }
+
+        bulletList[index].position.add(bulletList[index].velocity);
+    }
+
+    if(keyboard.pressed('W')){
+        player.moveForward(-moveDistance);
+    };
+    if(keyboard.pressed('S')){
+        player.moveForward(moveDistance);
+    };
+    if(keyboard.pressed('A')){
+        player.rotateAngle(rotationAngle);
+    };
+    if(keyboard.pressed('D')){
+        player.rotateAngle(-rotationAngle)
+    }
+
+    if(keyboard.pressed('space')){
+        shoot(player1.obj.position,player1.obj.rotation);
+    }
+
+    //console.log(player.obj.rotation);
+
+    if(keyboard.pressed('up')){
+        player2.moveForward(-moveDistance);
+    };
+    if(keyboard.pressed('down')){
+        player2.moveForward(moveDistance);
+    };
+    if(keyboard.pressed('left')){
+        player2.rotateAngle(rotationAngle);
+    };
+    if(keyboard.pressed('right')){
+        player2.rotateAngle(-rotationAngle)
+    }
+};
+
+function shoot(pos,rot){
+    var geometry = new THREE.SphereGeometry(0.5, 8, 8);
+    var material = new THREE.MeshBasicMaterial({color: 0xffff00});
+    var bullet = new THREE.Mesh(geometry, material);
+
+    if(rot.x <= 0){
+        bullet.position.set(pos.x + 10*Math.sin(rot.y), pos.y + 10*Math.cos(rot.y), pos.z);
+        bullet.velocity = new THREE.Vector3(
+            Math.sin(rot.y),
+            Math.cos(rot.y),
+            0
+        );
+    }else{
+        bullet.position.set(pos.x + 10*Math.sin(rot.y), pos.y - 10*Math.cos(rot.y), pos.z);
+        bullet.velocity = new THREE.Vector3(
+            Math.sin(rot.y),
+            -Math.cos(rot.y),
+            0
+        );
+    }
+    
+
+
+    bullet.alive = true;
+    setTimeout(
+        function(){
+            bullet.alive = false;
+            scene.remove(bullet);
+        },
+        1000
+    );
+
+    scene.add(bullet);
+    bulletList.push(bullet)
+}
 
 
 
