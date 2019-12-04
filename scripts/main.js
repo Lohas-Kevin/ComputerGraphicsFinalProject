@@ -1,4 +1,4 @@
-
+// spaceship constructor
 class Spaceship {
     constructor(object, name, type, sceneRef){
         this.obj = object;
@@ -10,11 +10,12 @@ class Spaceship {
         this.canShoot = 0;
         this.alive = true;
     }
-
+// returns the name of the spaceship
     returnName(){
         return this.name;
     }
-
+    /* function for damage; decrements the spaceship's health
+          if spaceship health drops below zero, spaceship dies */
     damage(value) {
         this.health -= value;
         if(this.health <= 0){
@@ -38,6 +39,7 @@ class Spaceship {
 };
 
 class CollisionDetection{
+// renders a collision detector in the form of a cube around mesh
     constructor(obj){
         this.visualization = new THREE.BoxHelper(obj);
         this.box = new THREE.Box3().setFromObject(obj);
@@ -47,17 +49,17 @@ class CollisionDetection{
     setRef(ref){
         this.ref = ref;
     }
-
+    // allows box to follow spaceship movement
     update(obj){
         if(obj != undefined){
             this.visualization.update();
             this.box = this.box.setFromObject(obj);
         }
-        
+
     }
 }
 
-var camera, scene, renderer, manager;
+var camera, backgroundScene, scene, renderer, manager, texture;
 var spaceshipList = [];
 var player;
 var player2;
@@ -76,9 +78,12 @@ function init(){
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
     camera.position.z = 150;
+    /* initialize background texture here */
 
     scene = new THREE.Scene();
-
+    const loader = new THREE.TextureLoader();
+    const bgTexture = loader.load('images/spaceBackground.jpg');
+    scene.background = bgTexture;
     var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
     scene.add(ambientLight);
 
@@ -94,7 +99,7 @@ function init(){
 
     player2 = CreateElement("Player2", "Spaceship", 'models/player_spaceship.obj', 'models/player_spaceship.mtl');
     player2.obj.rotateX(Math.PI/2);
-    
+
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -120,11 +125,11 @@ function CreateElement(name, type, ObjURL, MtlURL){
     var box = new CollisionDetection(temp.obj);
     temp.setBoxRef(box);
     box.setRef(temp);
-    
+
     spaceshipList.push(temp);
     boundingBoxList.push(box);
 
-    
+
     return temp;
 }
 
@@ -135,7 +140,7 @@ function animate() {
     setTimeout(function(){
         requestAnimationFrame( animate );
     }, 1000 / 60)
-    
+
     //player.obj.translateX(0.1);
     //console.log(player.obj.position);
     renderer.render( scene, camera );
@@ -146,7 +151,7 @@ function LoadModel(ObjURL,MtlURL){
     var mLoader = new THREE.MTLLoader();
     var oLoader = new THREE.OBJLoader();
     var result = new THREE.Object3D();
-    mLoader.load( MtlURL, 
+    mLoader.load( MtlURL,
         function(materials){
             materials.preload();
             oLoader.setMaterials( materials );
@@ -174,7 +179,7 @@ function LoadModel(ObjURL,MtlURL){
 };
 
 
-//code from 
+//code from
 //https://discourse.threejs.org/t/functions-to-calculate-the-visible-width-height-at-a-given-z-depth-from-a-perspective-camera/269
 //this is used to calculate the height and width.
 function visibleHeightAtZDepth( depth, camera ){
@@ -182,14 +187,14 @@ function visibleHeightAtZDepth( depth, camera ){
     var cameraOffset = camera.position.z;
     if ( depth < cameraOffset ) depth -= cameraOffset;
     else depth += cameraOffset;
-  
+
     // vertical fov in radians
-    var vFOV = camera.fov * Math.PI / 180; 
-  
+    var vFOV = camera.fov * Math.PI / 180;
+
     // Math.abs to ensure the result is always positive
     return 2 * Math.tan( vFOV / 2 ) * Math.abs( depth );
   };
-  
+
 function visibleWidthAtZDepth( depth, camera ){
     var height = visibleHeightAtZDepth( depth, camera );
     return height * camera.aspect;
@@ -214,9 +219,9 @@ function update(){
         bulletList[index].box.update(bulletList[index]);
 
         //check the bullet collection
-        if(bulletList[index].from == "Player" && 
+        if(bulletList[index].from == "Player" &&
         bulletList[index].box.box.intersectsBox(player2.box.box) == true){
-            
+
             scene.remove(bulletList[index].box.visualization);
             scene.remove(bulletList[index]);
             player2.damage(10);
@@ -298,7 +303,7 @@ function shoot(pos,rot, colorNum, from){
     var geometry = new THREE.SphereGeometry(0.5, 8, 8);
     var material = new THREE.MeshBasicMaterial({color: colorNum});
     var bullet = new THREE.Mesh(geometry, material);
-    
+
     var box = new CollisionDetection(bullet);
     bullet.box = box;
     bullet.from = from;
@@ -319,7 +324,7 @@ function shoot(pos,rot, colorNum, from){
             0
         );
     }
-    
+
 
 
     bullet.alive = true;
@@ -330,7 +335,7 @@ function shoot(pos,rot, colorNum, from){
                 scene.remove(bullet);
                 scene.remove(bullet.box.visualization);
             }
-            
+
         },
         1500
     );
@@ -338,6 +343,3 @@ function shoot(pos,rot, colorNum, from){
     scene.add(bullet);
     bulletList.push(bullet);
 }
-
-
-
