@@ -17,9 +17,10 @@ class Spaceship {
 
     damage(value) {
         this.health -= value;
-        this.alive = false;
         if(this.health <= 0){
+            this.alive = false;
             this.sceneRef.remove(this.obj);
+            this.sceneRef.remove(this.box.visualization);
         }
     }
 
@@ -214,15 +215,24 @@ function update(){
 
         //check the bullet collection
         if(bulletList[index].from == "Player" && 
-            bulletList[index].box.intersect == player2.box){
-                console.log('hit');
-        };
-        console.log(bulletList[index].box.box.getCenter());
-        console.log(bulletList[index].position);
+        bulletList[index].box.box.intersectsBox(player2.box.box) == true){
+            
+            scene.remove(bulletList[index].box.visualization);
+            scene.remove(bulletList[index]);
+            player2.damage(10);
+            bulletList.splice(index, 1);
+            console.log('hit player2');
+            console.log(player2.health);
+        }
 
-        if(bulletList[index].from == "Player" && 
-            bulletList[index].box.box.intersectsBox(player2.box.box) == true){
-            console.log('hit');
+        if(bulletList[index].from == "Player2" &&
+        bulletList[index].box.box.intersectsBox(player.box.box) == true){
+            scene.remove(bulletList[index].box.visualization);
+            scene.remove(bulletList[index]);
+            player.damage(10);
+            bulletList.splice(index, 1);
+            console.log('hit player');
+            console.log(player.health);
         }
     }
 
@@ -255,6 +265,11 @@ function update(){
         player.canShoot = 10;
     }
 
+    if(keyboard.pressed('L') && player2.canShoot <= 0){
+        shoot(player2.obj.position, player2.obj.rotation, 0xffff00, "Player2");
+        player2.canShoot = 10;
+    }
+
     //console.log(player.obj.rotation);
 
     if(keyboard.pressed('up')){
@@ -272,6 +287,9 @@ function update(){
 
     if(player.canShoot > 0){
         player.canShoot -= 1;
+    }
+    if(player2.canShoot > 0){
+        player2.canShoot -= 1;
     }
 
 };
