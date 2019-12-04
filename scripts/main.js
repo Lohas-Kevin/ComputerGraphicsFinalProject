@@ -17,12 +17,16 @@ class Spaceship {
     /* function for damage; decrements the spaceship's health
           if spaceship health drops below zero, spaceship dies */
     damage(value) {
-        this.health -= value;
+        if(this.health > 0){
+            this.health -= value;
+        };
+        
         if(this.health <= 0){
             this.alive = false;
             this.sceneRef.remove(this.obj);
             this.sceneRef.remove(this.box.visualization);
-        }
+            this.sceneRef.remove(this.box.box);
+        };
     }
 
     moveForward(value){
@@ -43,7 +47,7 @@ class CollisionDetection{
     constructor(obj){
         this.visualization = new THREE.BoxHelper(obj);
         this.box = new THREE.Box3().setFromObject(obj);
-        scene.add(this.visualization);
+        //scene.add(this.visualization);
     }
 
     setRef(ref){
@@ -52,7 +56,7 @@ class CollisionDetection{
     // allows box to follow spaceship movement
     update(obj){
         if(obj != undefined){
-            this.visualization.update();
+            //this.visualization.update();
             this.box = this.box.setFromObject(obj);
         }
 
