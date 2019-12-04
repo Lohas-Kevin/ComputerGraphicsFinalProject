@@ -266,7 +266,7 @@ function update(){
     }
 
     if(keyboard.pressed('L') && player2.canShoot <= 0){
-        shoot(player2.obj.position, player2.obj.rotation, 0xffff00, "Player2");
+        shoot(player2.obj.position, player2.obj.rotation, 0xff0000, "Player2");
         player2.canShoot = 10;
     }
 
@@ -332,7 +332,7 @@ function shoot(pos,rot, colorNum, from){
             }
             
         },
-        1250
+        1500
     );
 
     scene.add(bullet);
