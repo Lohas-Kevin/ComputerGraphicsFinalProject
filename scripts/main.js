@@ -47,6 +47,7 @@ class CollisionDetection{
     constructor(obj){
         this.visualization = new THREE.BoxHelper(obj);
         this.box = new THREE.Box3().setFromObject(obj);
+        //If you want to see the visualization, un-comment the next line
         //scene.add(this.visualization);
     }
 
