@@ -65,7 +65,6 @@ class CollisionDetection{
 }
 
 var camera, backgroundScene, scene, renderer, manager, texture;
-var hudCanvas, sceneHUD, cameraHUD;
 var spaceshipList = [];
 var player;
 var player2;
@@ -74,50 +73,23 @@ var clock;
 var keyboard = new THREEx.KeyboardState();
 var bulletList = [];
 var boundingBoxList = [];
+var p1h,p2h;
 
 init();
 animate();
 
 function init(){
-    container = document.createElement( 'div' );
-    document.body.appendChild(container);
+    container = document.getElementById("game");
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
     camera.position.z = 150;
-    /* create canva and use this to render HUD; make the canvas fit screen size and initialize 2D drawing context
-     source : https://www.evermade.fi/pure-three-js-hud/ */
-    hudCanvas = document.createElement('canvas');
-    hudCanvas.width = 10;
-    hudCanvas.height = 10;
-    var hudBitmap = hudCanvas.getContext('2d');
-    // rendering HUD
-    hudBitmap.font = "Normal 40px Arial";
-    hudBitmap.textAlign = 'center';
-    hudBitmap.fillStyle = "rgba(245,245,245,0.75)";
-    hudBitmap.fillText('is this working...?', 5, 5);
-    // initializing camera and match dimensions of window
-    cameraHUD = new THREE.OrthographicCamera(
-      -5,5,
-      5,-5,
-      0, 30
-    );
-    // create a new HUD scene
-    sceneHUD = new THREE.Scene();
-    // create a new material by using the 2D graphics rendered
-    var hudTexture = new THREE.Texture(hudCanvas);
-    hudTexture.needsUpdate = true;
-    var hudMaterial = new THREE.MeshBasicMaterial( {map: hudTexture } );
-    hudMaterial.transparent = true;
-    // create a plane, apply mateiral and add to scene
-    var planeGeometry = new THREE.PlaneGeometry( 10, 10 );
-    var plane = new THREE.Mesh( planeGeometry, hudMaterial );
-    sceneHUD.add( plane );
+
     // initialize game scene
     scene = new THREE.Scene();
-    const loader = new THREE.TextureLoader(); /* initialize background,
-                                                 and laod */
+    const loader = new THREE.TextureLoader(); /* initialize background, and laod */
     const bgTexture = loader.load('images/spaceBackground.jpg');
     scene.background = bgTexture;
+
     var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
     scene.add(ambientLight);
 
@@ -147,6 +119,9 @@ function init(){
     player2.obj.translateZ(-visibleHeight/2 + 10);
 
     clock = new THREE.Clock();
+
+    p1h = document.getElementById("p1h");
+    p2h = document.getElementById("p2h");
 
 };
 
@@ -330,6 +305,9 @@ function update(){
     if(player2.canShoot > 0){
         player2.canShoot -= 1;
     }
+
+    p1h.innerHTML = "Player1:" + player.health;
+    p2h.innerHTML = "Player2:" + player2.health;
 
 };
 
