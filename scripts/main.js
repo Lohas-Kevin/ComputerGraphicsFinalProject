@@ -81,7 +81,7 @@ function init(){
     document.body.appendChild(container);
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-    camera.position.z = 150;
+    camera.position.z = 200;
     /* initialize background texture here */
 
     scene = new THREE.Scene();
